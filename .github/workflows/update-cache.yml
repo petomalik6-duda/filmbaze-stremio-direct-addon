@@ -16,6 +16,9 @@ jobs:
   update-cache:
     runs-on: ubuntu-latest
 
+    env:
+      PORT: 10000
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,6 +40,12 @@ jobs:
         env:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         run: npm run update-cache
+
+      - name: Test addon server
+        run: |
+          node server.js &
+          sleep 10
+          curl http://127.0.0.1:10000/manifest.json
 
       - name: Commit updated cache
         run: |
