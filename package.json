@@ -1,18 +1,13 @@
 {
   "name": "filmbaze-stremio-direct-addon",
-  "version": "2.0.0",
-  "description": "Stremio catalog addon for Filmbaze CZ dabing movies and Czech series",
+  "version": "3.0.0",
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
-    "test": "node -e \"console.log('No tests yet')\""
+    "update-cache": "node update-cache.js"
   },
   "dependencies": {
     "express": "^4.19.2",
     "playwright": "^1.52.0"
-  },
-  "engines": {
-    "node": ">=20"
   }
 }
