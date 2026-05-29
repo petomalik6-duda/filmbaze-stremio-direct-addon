@@ -10,7 +10,7 @@ app.use((req, res, next) => {
 
 const manifest = {
   id: "community.filmbaze.cached.catalog",
-  version: "3.0.0",
+  version: "3.0.1",
   name: "Filmbaze CZ SK",
   description: "Filmbaze katalogy pre Stremio",
   resources: ["catalog", "meta"],
