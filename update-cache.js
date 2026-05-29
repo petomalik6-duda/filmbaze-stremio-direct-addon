@@ -8,7 +8,9 @@ const SERIES_URL =
   "https://filmbaze.cz/oblibene-serialy-v-cestine";
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
-
+if (!TMDB_API_KEY) {
+  throw new Error("Missing TMDB_API_KEY");
+}
 function cleanTitle(title) {
   return title
     .replace(/^Poster for\s+/i, "")
