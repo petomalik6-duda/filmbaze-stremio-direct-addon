@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: filmbaze-stremio-direct-addon
+    env: node
+    plan: free
+    buildCommand: npm install && npx playwright install chromium --with-deps
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: MAX_ITEMS_PER_TYPE
+        value: 40
+      - key: CACHE_TTL_HOURS
+        value: 12
+      - key: TMDB_API_KEY
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
