@@ -3,6 +3,13 @@ import express from "express";
 import { chromium } from "playwright";
 
 const app = express();
+app.use((req, res, next) => {
+ res.setHeader("Access-Control-Allow-Origin", "*");
+ res.setHeader("Access-Control-Allow-Headers", "*");
+ res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+ if (req.method === "OPTIONS") return res.sendStatus(200);
+ next();
+});
 const PORT = Number(process.env.PORT || 7000);
 const TMDB_API_KEY = process.env.TMDB_API_KEY || "";
 const PUBLIC_URL = (process.env.PUBLIC_URL || `http://127.0.0.1:${PORT}`).replace(/\/$/, "");
@@ -178,7 +185,7 @@ async function buildCatalog(type) {
 
 const manifest = {
  id: "community.filmbaze.direct.catalog",
- version: "2.0.1",
+ version: "2.0.2",
  name: "Filmbaze CZ SK",
  description: "Filmbaze katalogy pre Stremio",
  resources: ["catalog", "meta"],
