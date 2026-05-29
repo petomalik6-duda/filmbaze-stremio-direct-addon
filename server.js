@@ -181,7 +181,6 @@ const manifest = {
   version: "2.0.0",
   name: "Filmbaze CZ/SK katalógy",
   description: "Katalógy pre Stremio z Filmbaze: nové filmy s českým dabingom a obľúbené seriály v češtine. Bez streamov, iba katalóg/metadáta.",
-  logo: `${PUBLIC_URL}/logo.png`,
   resources: ["catalog", "meta"],
   types: ["movie", "series"],
   catalogs: [
