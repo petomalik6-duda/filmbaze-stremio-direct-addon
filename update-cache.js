@@ -8,16 +8,55 @@ const SERIES_URL =
   "https://filmbaze.cz/oblibene-serialy-v-cestine";
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
+
 if (!TMDB_API_KEY) {
   throw new Error("Missing TMDB_API_KEY");
 }
+
 function cleanTitle(title) {
   return title
     .replace(/^Poster for\s+/i, "")
     .replace(/\(.*?\)/g, "")
     .replace(/\[.*?\]/g, "")
+    .replace(
+      /CZ|SK|dabing|titulky|online|zdarma/gi,
+      ""
+    )
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function isValidTitle(title) {
+  if (!title) return false;
+
+  const blacklist = [
+    "Filmbaze",
+    "Přihlášení",
+    "Registrace",
+    "Domů",
+    "Filmy",
+    "Seriály",
+    "Facebook",
+    "Instagram",
+    "Komentáře",
+    "Menu",
+    "Hledat"
+  ];
+
+  if (
+    blacklist.some((x) =>
+      title.toLowerCase().includes(
+        x.toLowerCase()
+      )
+    )
+  ) {
+    return false;
+  }
+
+  return (
+    title.length > 1 &&
+    title.length < 120
+  );
 }
 
 async function scrape(url) {
@@ -27,7 +66,10 @@ async function scrape(url) {
     headless: true
   });
 
-  const page = await browser.newPage();
+  const page = await browser.newPage({
+    userAgent:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36"
+  });
 
   await page.goto(url, {
     waitUntil: "domcontentloaded",
@@ -36,28 +78,52 @@ async function scrape(url) {
 
   await page.waitForTimeout(10000);
 
-  for (let i = 0; i < 8; i++) {
-    await page.mouse.wheel(0, 3000);
-    await page.waitForTimeout(1000);
+  for (let i = 0; i < 30; i++) {
+    await page.mouse.wheel(0, 4000);
+
+    await page.waitForTimeout(1500);
+
+    try {
+      const buttons = await page.$$("button");
+
+      for (const btn of buttons) {
+        const text = await btn.textContent();
+
+        if (
+          text &&
+          (
+            text.includes("Načítať") ||
+            text.includes("Načíst") ||
+            text.includes("další") ||
+            text.includes("více")
+          )
+        ) {
+          await btn.click().catch(() => {});
+          await page.waitForTimeout(2000);
+        }
+      }
+    } catch {}
   }
 
-  const titles = await page.evaluate(() => {
+  const raw = await page.evaluate(() => {
     const out = [];
 
     document
-      .querySelectorAll("img")
+      .querySelectorAll("img, a, h2, h3")
       .forEach((el) => {
-        const alt = el
-          .getAttribute("alt")
-          ?.trim();
+        const values = [
+          el.textContent,
+          el.getAttribute("title"),
+          el.getAttribute("alt")
+        ];
 
-        if (
-          alt &&
-          alt.length > 1 &&
-          alt.length < 100
-        ) {
-          out.push(alt);
-        }
+        values.forEach((v) => {
+          const text = v?.trim();
+
+          if (text) {
+            out.push(text);
+          }
+        });
       });
 
     return [...new Set(out)];
@@ -65,9 +131,19 @@ async function scrape(url) {
 
   await browser.close();
 
-  return [...new Set(
-    titles.map(cleanTitle)
-  )];
+  const cleaned = [
+    ...new Set(
+      raw
+        .map(cleanTitle)
+        .filter(isValidTitle)
+    )
+  ];
+
+  console.log(
+    `Found ${cleaned.length} titles`
+  );
+
+  return cleaned;
 }
 
 async function tmdbSearch(title, type) {
@@ -84,6 +160,9 @@ async function tmdbSearch(title, type) {
   const res = await fetch(url);
 
   if (!res.ok) {
+    console.log(
+      `TMDB error ${res.status}`
+    );
     return null;
   }
 
@@ -139,24 +218,35 @@ async function main() {
   const movies = [];
   const series = [];
 
-  for (const title of movieTitles.slice(0, 50)) {
+  const usedMovieIds = new Set();
+  const usedSeriesIds = new Set();
+
+  for (const title of movieTitles.slice(0, 200)) {
     const meta = await buildMeta(
       title,
       "movie"
     );
 
-    if (meta) {
+    if (
+      meta &&
+      !usedMovieIds.has(meta.id)
+    ) {
+      usedMovieIds.add(meta.id);
       movies.push(meta);
     }
   }
 
-  for (const title of seriesTitles.slice(0, 50)) {
+  for (const title of seriesTitles.slice(0, 200)) {
     const meta = await buildMeta(
       title,
       "series"
     );
 
-    if (meta) {
+    if (
+      meta &&
+      !usedSeriesIds.has(meta.id)
+    ) {
+      usedSeriesIds.add(meta.id);
       series.push(meta);
     }
   }
@@ -171,6 +261,14 @@ async function main() {
       null,
       2
     )
+  );
+
+  console.log(
+    `Saved ${movies.length} movies`
+  );
+
+  console.log(
+    `Saved ${series.length} series`
   );
 
   console.log("Cache updated");
