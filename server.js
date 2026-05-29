@@ -177,17 +177,24 @@ async function buildCatalog(type) {
 }
 
 const manifest = {
-  id: "community.filmbaze.direct.catalog",
-  version: "2.0.0",
-  name: "Filmbaze CZ/SK katalógy",
-  description: "Katalógy pre Stremio z Filmbaze: nové filmy s českým dabingom a obľúbené seriály v češtine. Bez streamov, iba katalóg/metadáta.",
-  resources: ["catalog", "meta"],
-  types: ["movie", "series"],
-  catalogs: [
-    { type: "movie", id: SOURCES.movie.catalogId, name: SOURCES.movie.name },
-    { type: "series", id: SOURCES.series.catalogId, name: SOURCES.series.name }
-  ],
-  idPrefixes: ["tmdb:", "filmbaze:"]
+ id: "community.filmbaze.direct.catalog",
+ version: "2.0.1",
+ name: "Filmbaze CZ SK",
+ description: "Filmbaze katalogy pre Stremio",
+ resources: ["catalog", "meta"],
+ types: ["movie", "series"],
+ catalogs: [
+   {
+     type: "movie",
+     id: "filmbaze_cz_dabing",
+     name: "Filmbaze CZ filmy"
+   },
+   {
+     type: "series",
+     id: "filmbaze_cz_serialy",
+     name: "Filmbaze CZ serialy"
+   }
+ ]
 };
 
 app.get("/", (_req, res) => res.redirect("/manifest.json"));
