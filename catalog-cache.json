@@ -580,6 +580,13 @@
       "posterShape": "poster"
     },
     {
+      "id": "tmdb:1314398",
+      "type": "movie",
+      "name": "Frieda's Case",
+      "poster": "https://image.tmdb.org/t/p/w500/nPhO7N3IOjEiNQop4yBLQUWJNXL.jpg",
+      "posterShape": "poster"
+    },
+    {
       "id": "tmdb:1556011",
       "type": "movie",
       "name": "Na horách",
