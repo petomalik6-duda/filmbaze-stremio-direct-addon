@@ -26,5 +26,5 @@ jobs:
         run: |
           node server.js &
           sleep 8
-          curl -f http://127.0.0.1:1000/manifest.json
-          curl -f http://127.0.0.1:1000/catalog/movie/filmbaze_cz_dabing.json
+          curl -f http://127.0.0.1:10000/manifest.json
+          curl -f http://127.0.0.1:10000/catalog/movie/filmbaze_cz_dabing.json
